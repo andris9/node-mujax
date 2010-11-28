@@ -33,7 +33,7 @@ function Mujax(urls, callback, options){
             if(!waiting){
                 if(errors.length){
                     for(var i=0, len = files.length; i<len; i++){
-                        child_process.exec('rm '+files[i]);
+                        fs.unlink(files[i])
                     }
                     callback(errors, null)
                 }else
@@ -54,7 +54,7 @@ function saveStreamToFile(url, filename, callback){
         else if(typeof err=="object")
             err = ["IO Error: "+(err.message||"?")];
         callback(err && err.length && err || ["IO Error"], null);
-        child_process.exec('rm '+filename);
+        fs.unlink(filename)
     });
     f.on("open", function(fd){
         var request = new EventEmitter(); 
@@ -69,6 +69,7 @@ function saveStreamToFile(url, filename, callback){
         request.on("error", function(err){
             f.end();
             child_process.exec('rm '+filename);
+            fs.unlink(filename);
             callback(err, null);
         });
         request.on("response", function(){});
