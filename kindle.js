@@ -55,6 +55,7 @@ function doConversion(request, response, payload, files){
                 status = "WARNINGS"
             if (error !== null) {
                 removeFiles(files);
+                console.log("Conversion error")
                 sendError(payload, "Conversion error")
             }else{
                 payload.fields = payload.fields || [];
@@ -109,6 +110,7 @@ function sendError(payload, message, repeat){
         function (error, response, body) {
             if (!error && response.statusCode == 200) {
                 // OK!
+                console.log("error sent")
             }else{
                 repeat++;
                 if(repeat>5){
