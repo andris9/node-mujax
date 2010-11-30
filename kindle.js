@@ -45,7 +45,16 @@ function doConversion(request, response, payload, files){
     child_process.exec('kindlegen /tmp/node/'+payload.main+' -o '+payload.out,
         function (error, stdout, stderr) {
             var lines = String(stdout).trim().split("\n"),
-                lastLine = lines.pop().toLowerCase();
+                lastLine = lines.pop().toLowerCase(),
+                warnings = [], w;
+            
+            for(var i=0;i<lines.length;i++){
+                if(lines[i].toLowerCase().substr(0,7)=="warning" || lines[i].toLowerCase().substr(0,5)=="error"){
+                    w = lines[i].split(":");
+                    warnings.push(w[1].trim());
+                }
+            }
+            
             console.log(lines)
             console.log("L:"+lastLine)
             var status = "ERROR";
@@ -56,7 +65,8 @@ function doConversion(request, response, payload, files){
             if (error !== null) {
                 removeFiles(files);
                 console.log("Conversion error")
-                sendError(payload, "Conversion error")
+                console.log(warnings)
+                sendError(payload, "Conversion error"+(warnings.length?"\n- "+warnings.join("\n- "):""))
             }else{
                 payload.fields = payload.fields || [];
                 payload.fields.push({name:"conversion_status", value:status});
